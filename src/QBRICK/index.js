@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react'
-import { Canvas, extend, useThree, useFrame } from 'react-three-fiber'
+import { Canvas, useThree, useFrame } from 'react-three-fiber'
 import { OrbitControls, Line } from 'drei'
 import styled from 'styled-components'
 
@@ -7,27 +7,35 @@ import styled from 'styled-components'
  * Conf the game
  */
 const QB_CONF = {
-    side: 8, // int
+    sides: 8, // int
     height: 13, // int
+    scale: 1.3, // float
+
+    get width() {
+        return this.sides * this.scale
+    },
+    set width(w) {
+        this.scale = w / this.sides
+    },
 }
+const sz = QB_CONF.sides
+const sc = QB_CONF.scale
+const sw = QB_CONF.width
 
 /**
  * Play Ground, target label 0
  */
-const PGround = () => {
-    const sz = QB_CONF.side
-    const ground = useRef()
-
-    const PGrid = () => {
+const QGround = () => {
+    const Grid = () => {
         const lines = []
-        for (let i = 1; i <= sz - 1; i++) {
+        for (let i = sc; i <= sz * sc - 1 * sc; i += sc) {
             lines.push([
                 [0, 0, i],
-                [sz, 0, i],
+                [sw, 0, i],
             ])
             lines.push([
                 [i, 0, 0],
-                [i, 0, sz],
+                [i, 0, sw],
             ])
         }
         return lines.map((vec3, index) => <Line key={index} points={vec3} color="#0F4C81" linewidth={1} />)
@@ -37,28 +45,29 @@ const PGround = () => {
         const lines = [
             [
                 [0, 0, 0],
-                [0, 0, sz],
+                [0, 0, sw],
             ],
             [
-                [0, 0, sz],
-                [sz, 0, sz],
+                [0, 0, sw],
+                [sw, 0, sw],
             ],
             [
-                [sz, 0, sz],
-                [sz, 0, 0],
+                [sw, 0, sw],
+                [sw, 0, 0],
             ],
             [
-                [sz, 0, 0],
+                [sw, 0, 0],
                 [0, 0, 0],
             ],
         ]
         return lines.map((vec3, index) => <Line key={index} points={vec3} color="#0F4C81" linewidth={1} />)
     }
 
+    const ground = useRef()
     return (
         <group ref={ground}>
             <Perimeter />
-            <PGrid />
+            <Grid />
         </group>
     )
 }
@@ -76,7 +85,7 @@ export default function QBRICK() {
                 colorManagement>
                 <ambientLight />
                 <pointLight position={[10, 10, 10]} />
-                <PGround />
+                <QGround />
                 <OrbitControls />
             </Canvas>
         </THREETRIS>
