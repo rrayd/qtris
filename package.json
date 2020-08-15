@@ -1,0 +1,42 @@
+{
+  "name": "qbrick-tetris",
+  "version": "0.0.1",
+  "description": "3D Tetris game for QBRICK App",
+  "author": {
+    "email": "supeternity@gmail.com",
+    "name": "Dmitrii Raikov"
+  },
+  "keywords": [],
+  "main": "src/index.js",
+  "dependencies": {
+    "drei": "^0.0.72",
+    "react": "16.13.1",
+    "react-dom": "16.13.1",
+    "react-router-dom": "^5.2.0",
+    "react-scripts": "3.4.1",
+    "react-three-fiber": "4.2.20",
+    "styled-components": "^5.1.1",
+    "three": "0.117.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test --env=jsdom",
+    "eject": "react-scripts eject"
+  },
+  "prettier": {
+    "semi": false,
+    "trailingComma": "es5",
+    "singleQuote": true,
+    "jsxBracketSameLine": true,
+    "tabWidth": 4,
+    "printWidth": 120
+  },
+  "browserslist": [
+    ">0.2%",
+    "not dead",
+    "not ie <= 11",
+    "not op_mini all"
+  ]
+}
