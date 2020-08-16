@@ -31,7 +31,7 @@
     "singleQuote": true,
     "jsxBracketSameLine": true,
     "tabWidth": 4,
-    "printWidth": 120
+    "printWidth": 80
   },
   "browserslist": [
     ">0.2%",
