@@ -6,6 +6,9 @@
     "email": "supeternity@gmail.com",
     "name": "Dmitrii Raikov"
   },
+  "repository": {
+    "url": "https://github.com/rrayd/qtris.git"
+  },
   "keywords": [],
   "main": "src/index.js",
   "dependencies": {
