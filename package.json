@@ -1,11 +1,7 @@
 {
   "name": "qbrick-tetris",
   "version": "0.0.1",
-  "description": "3D Tetris game for QBRICK App",
-  "author": {
-    "email": "supeternity@gmail.com",
-    "name": "Dmitrii Raikov"
-  },
+  "description": "Orhographic 3d tetris experiment",
   "repository": {
     "url": "https://github.com/rrayd/qtris.git"
   },
