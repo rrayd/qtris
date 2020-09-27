@@ -35,10 +35,10 @@ const CONTAINER = styled.div`
     left: 0;
     right: 0;
     padding: 0 14%;
-    // pointer-events: none;
+    pointer-events: none;
     justify-content: space-between;
 `
 const LOGO = styled.span``
 const OPTIONS = styled.span`
-    // pointer-events: auto;
+    pointer-events: auto;
 `
