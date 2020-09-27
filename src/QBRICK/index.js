@@ -99,9 +99,8 @@ const QGround = () => {
         ))
     }
 
-    const ground = useRef()
     return (
-        <group ref={ground}>
+        <group>
             <Perimeter />
             <Grid />
         </group>
@@ -155,43 +154,17 @@ const QFigureSource = (name) => {
     }
 }
 
-// /**
-//  * Figure Vector Representation
-//  */
-// const FVR = (source) => ({
-//     width: source[0].length,
-//     height: source.length,
-//     depth: 1,
-//     get data() {
-//         const substrate = new Uint8Array(this.width * this.height * this.depth)
-//         const flatSource = source.reduce((acc, val) => acc.concat(val), [])
-//         for (let i = 0; i < flatSource.length; i++) {
-//             substrate[i] = flatSource[i]
-//         }
-//         return substrate
-//     },
-//     get texture() {
-//         return new THREE.DataTexture2DArray(
-//             this.data,
-//             this.width,
-//             this.height,
-//             this.depth
-//         )
-//     },
-// })
-
 /**
  * One cell reference
  */
 const QVox = () => {
     console.count('QVox')
+
     return <boxBufferGeometry attach="geometry" args={[sc, sc, sc]} />
-    // return <planeBufferGeometry attach="geometry" args={[sc, sc]} />
-    // return new THREE.PlaneGeometry([sc, sc])
 }
 
 /**
- * Vox Tetris Figures with bounding troubles
+ * Vox Tetris Figures
  */
 const QFigure = (props) => {
     console.count('QFigure')
@@ -212,13 +185,6 @@ const QFigure = (props) => {
         }
     }
 
-    // const fixedMesh = (self) => {
-    //     const size = new THREE.Vector3()
-    //     self.geometry.computeBoundingBox()
-    //     self.geometry.boundingBox.getSize(size)
-    //     self.updateMatrixWorld(true)
-    // }
-
     return voxels.map((vox, i) => (
         <mesh
             key={i}
@@ -229,63 +195,6 @@ const QFigure = (props) => {
             <meshStandardMaterial attach="material" color="#0BDCFF" />
         </mesh>
     ))
-}
-
-/**
- * Classic Shape Tetris Figures
- */
-const QFigureShape = ({ source }) => {
-    console.count('QFigureShape')
-
-    const flatSource = source.reduce((acc, val) => acc.concat(val), [])
-
-    // TODO memo
-    const cellPoints = []
-    for (let i = 0, x = 0, y = 0; i < flatSource.length; i++) {
-        if (flatSource[i]) {
-            cellPoints.push([x, 0, y])
-        }
-        if (x < source[0].length - 1) {
-            x += sc
-        } else {
-            y += sc
-            x = 0
-        }
-    }
-
-    // TODO memo
-    const shape = new THREE.Shape()
-    shape.autoClose = true
-    shape.currentPoint = new THREE.Vector2(0, 0)
-    shape.lineTo(1, 0)
-    shape.lineTo(2, 0)
-    shape.lineTo(2, 2)
-    // cellPoints.forEach((vec3) => {
-    //     !before
-    //         ? shape.quadraticCurveTo(0, 0, vec3[0], vec3[2])
-    //         : shape.quadraticCurveTo(before[0], before[2], vec3[0], vec3[2])
-    //     before = vec3
-    // })
-    const extrudeSettings = {
-        depth: 8,
-        bevelEnabled: true,
-        bevelSegments: 2,
-        steps: 2,
-        bevelSize: 1,
-        bevelThickness: 1,
-    }
-
-    return (
-        <mesh>
-            <shapeBufferGeometry
-                attach={'geometry'}
-                args={shape}
-                extrudeSettings={extrudeSettings}
-                side={THREE.DoubleSide}
-            />
-            <meshPhongMaterial attach="material" color="#0BDCFF" />
-        </mesh>
-    )
 }
 
 /**
@@ -360,7 +269,7 @@ const QActiveLabel = () => {
         }
     }, sp)
 
-    useFrame((f) => {
+    useFrame(() => {
         if (figureLayer && figureLayer.current) {
             figureLayer.current.position.y = label * sc + sc / 2
         }
