@@ -1,30 +1,32 @@
 import * as THREE from 'three'
 import React, {
+    createRef,
+    forwardRef,
     useRef,
     useEffect,
     useState,
-    useUpdate,
-    forwardRef,
 } from 'react'
-import { Canvas } from 'react-three-fiber'
+import { Canvas, useFrame } from 'react-three-fiber'
 import { Line, OrbitControls } from 'drei'
 import styled from 'styled-components'
 import { BufferGeometry, Geometry, ShapeBufferGeometry } from 'three'
+
+import { HUD } from './HUD/HUD'
 
 /**
  * Conf the
  */
 const QB_CONF = {
     sides: 8, // int
-    height: 13, // int
+    topFloor: 13, // int
     scale: 1.3, // float
     hard: 0.96, // float
 
     // --
-    get width() {
+    get boxSide() {
         return this.sides * this.scale
     },
-    set width(w) {
+    set boxSide(w) {
         this.scale = w / this.sides
     },
     // --
@@ -38,8 +40,8 @@ const QB_CONF = {
 const sz = QB_CONF.sides
 const sc = QB_CONF.scale
 const sp = QB_CONF.speed
-const sh = QB_CONF.height
-const sw = QB_CONF.width
+const sh = QB_CONF.topFloor
+const sw = QB_CONF.boxSide
 
 /**
  * util random range integer
@@ -276,7 +278,7 @@ const QFigureShape = ({ source }) => {
     return (
         <mesh>
             <shapeBufferGeometry
-                attach={"geometry"}
+                attach={'geometry'}
                 args={shape}
                 extrudeSettings={extrudeSettings}
                 side={THREE.DoubleSide}
@@ -289,12 +291,10 @@ const QFigureShape = ({ source }) => {
 /**
  * Action Figure layer
  */
-const QFigureLayer = (props) => {
+const QFigureLayer = React.forwardRef((props, ref) => {
     console.count('QFigureLayer')
 
     const { source } = props
-
-    const figureRef = useRef()
 
     const [position, setPosition] = useState([
         randomRangeInt(0, sz - 1) * sc,
@@ -329,7 +329,7 @@ const QFigureLayer = (props) => {
 
     return (
         <group
-            ref={figureRef}
+            ref={ref}
             position={[
                 position[0] + sc / 2,
                 position[1] + sc / 2,
@@ -338,34 +338,35 @@ const QFigureLayer = (props) => {
             <QFigure source={source} />
         </group>
     )
-}
+})
 
 /**
  * Cursor
  */
-const QActiveLabel = ({ playing }) => {
+const QActiveLabel = () => {
     console.count('QActiveLabel')
 
-    const [label, nextLabel] = useState(sh)
-    const [source, newSource] = useState(QFigureSource())
+    const [source, setSource] = useState(QFigureSource())
+    const figureLayer = createRef()
 
-    let interval = null
+    let label = sh
 
-    if (!interval && playing && label > 0) {
-        interval = setInterval(() => {
-            nextLabel((label) => label - 1)
-        }, sp)
-    } else if (playing && label === 0) {
-        clearInterval(interval)
-        nextLabel(sh)
-        newSource(QFigureSource())
-    } else if (!playing) {
-        if (interval) {
-            clearInterval(interval)
-            interval = null
+    let ticker = setInterval(() => {
+        if (label > 0) {
+            label -= 1
+        } else {
+            clearInterval(ticker)
+            setSource(QFigureSource())
         }
-    }
-    return <QFigureLayer source={source} />
+    }, sp)
+
+    useFrame((f) => {
+        if (figureLayer && figureLayer.current) {
+            figureLayer.current.position.y = label * sc + sc / 2
+        }
+    })
+
+    return <QFigureLayer ref={figureLayer} source={source} />
 }
 
 /**
@@ -379,8 +380,8 @@ export default function QBRICK() {
             <Canvas
                 orthographic
                 camera={{
-                    zoom: 60,
-                    position: [200, 100, 200],
+                    zoom: 30,
+                    position: [600, 500, 600],
                 }}
                 style={{ background: '#19140E' }}
                 colorManagement>
@@ -390,11 +391,13 @@ export default function QBRICK() {
                 <QActiveLabel />
                 <OrbitControls />
             </Canvas>
+            <HUD />
         </THREETRIS>
     )
 }
 
 const THREETRIS = styled.div`
+    position: relative;
     width: 100%;
     height: 100%;
 `
