@@ -19,10 +19,11 @@ import { HUD } from './HUD/HUD'
  * Conf the
  */
 const QB_CONF = {
+    // not normalized config
     sides: 8, // int
     topFloor: 8, // int
     scale: 1.3, // float
-    hard: 0.96, // float
+    hard: 8, // ~1 fast, ~13 slowly
 
     // --
     get boxSide() {
@@ -33,10 +34,10 @@ const QB_CONF = {
     },
     // --
     get speed() {
-        return this.hard * 1000
+        return ((this.hard - 0) / (1 - 0)) * 100
     },
     set speed(s) {
-        this.hard = s / 1000
+        this.hard = ((this.s - 0) * (1 - 0)) / 100
     },
 }
 const sz = QB_CONF.sides
@@ -232,16 +233,16 @@ const QActiveLabel = () => {
     const figureLayer = createRef()
 
     let label = sh
-    let figureLayerPositionYStart = null
-    let figureLayerPositionYTarget = null
-    let figureLayerPositionYFrame = 0
+    let figureLayerYStart = null
+    let figureLayerYTarget = null
+    let figureLayerYFrame = 0
 
     let ticker = setInterval(() => {
         if (label > 0) {
             label -= 1
-            figureLayerPositionYStart = null
-            figureLayerPositionYTarget = null
-            figureLayerPositionYFrame = 0
+            figureLayerYStart = null
+            figureLayerYTarget = null
+            figureLayerYFrame = 0
         } else {
             clearInterval(ticker)
             setSource(QFigureSource())
@@ -250,20 +251,20 @@ const QActiveLabel = () => {
 
     const inFrame = () => {
         if (figureLayer && figureLayer.current) {
-            if (!figureLayerPositionYStart && !figureLayerPositionYTarget) {
+            if (!figureLayerYStart && !figureLayerYTarget) {
                 figureLayer.current.position.y = label * sc + sc / 2 + sc
-                figureLayerPositionYStart = figureLayer.current.position.y
-                figureLayerPositionYTarget = figureLayerPositionYStart - sc
+                figureLayerYStart = figureLayer.current.position.y
+                figureLayerYTarget = figureLayerYStart - sc
             } else {
-                if (
-                    figureLayer.current.position.y > figureLayerPositionYTarget
-                ) {
+                console.log(sp)
+                if (figureLayer.current.position.y > figureLayerYTarget) {
                     figureLayer.current.position.y =
-                        figureLayerPositionYStart -
-                        easeInOutQuad(figureLayerPositionYFrame, 0, sc, sp / 20)
-                    figureLayerPositionYFrame++
+                        figureLayerYStart -
+                        easeInOutQuad(figureLayerYFrame, 0, sc, sp / 18)
+                    figureLayerYFrame++
                 } else {
-                    figureLayerPositionYStart = figureLayerPositionYTarget
+                    figureLayerYStart = figureLayerYTarget
+                    figureLayerYFrame = 0
                 }
             }
         }
@@ -287,7 +288,7 @@ export default function QBRICK() {
     }
 
     useEffect(() => {
-        console.count('QFigureLayer.useEffect[0]')
+        console.count('QBRICK.useEffect[0]')
 
         window.addEventListener('keydown', keyDownHandler)
         return () => {
@@ -300,7 +301,7 @@ export default function QBRICK() {
             <Canvas
                 orthographic
                 camera={{
-                    zoom: 30,
+                    zoom: 60,
                     position: [200, 100, 200],
                 }}
                 style={{ background: '#19140E' }}
@@ -308,12 +309,12 @@ export default function QBRICK() {
                 <ambientLight intensity="0.5" />
                 <pointLight
                     color="#0BDCFF"
-                    position={[-500, 120, 200]}
+                    position={[-500, 100, 200]}
                     intensity="2.1"
                 />
                 <pointLight
                     color="#ff69b4"
-                    position={[500, 60, -200]}
+                    position={[200, 60, -500]}
                     intensity="1.6"
                 />
                 <QGround />
