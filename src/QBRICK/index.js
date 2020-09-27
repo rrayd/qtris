@@ -7,9 +7,11 @@ import React, {
     useState,
 } from 'react'
 import { Canvas, useFrame } from 'react-three-fiber'
+import { useSpring, animated } from 'react-spring/three'
 import { Line, OrbitControls } from 'drei'
 import styled from 'styled-components'
 import { BufferGeometry, Geometry, ShapeBufferGeometry } from 'three'
+import { easeInOutQuad } from './utils/easing'
 
 import { HUD } from './HUD/HUD'
 
@@ -18,7 +20,7 @@ import { HUD } from './HUD/HUD'
  */
 const QB_CONF = {
     sides: 8, // int
-    topFloor: 13, // int
+    topFloor: 8, // int
     scale: 1.3, // float
     hard: 0.96, // float
 
@@ -186,13 +188,9 @@ const QFigure = (props) => {
     }
 
     return voxels.map((vox, i) => (
-        <mesh
-            key={i}
-            // onUpdate={fixedMesh}
-            rotation={[-1.5708, 0, 0]}
-            position={vox}>
+        <mesh key={i} rotation={[-1.5708, 0, 0]} position={vox}>
             <QVox />
-            <meshStandardMaterial attach="material" color="#0BDCFF" />
+            <meshStandardMaterial attach="material" color="#e6e6fa" />
         </mesh>
     ))
 }
@@ -205,36 +203,11 @@ const QFigureLayer = React.forwardRef((props, ref) => {
 
     const { source } = props
 
-    const [position, setPosition] = useState([
-        randomRangeInt(0, sz - 1) * sc,
+    const position = [
+        randomRangeInt(2, sz - 2) * sc,
         0,
-        randomRangeInt(0, sz - 1) * sc,
-    ])
-
-    // const [rotation, setRoration] = useState([-1,5708, 0, 0])
-
-    const keyDownHandler = (e) => {
-        console.log(e)
-    }
-
-    useEffect(() => {
-        console.count('QFigureLayer.useEffect[0]')
-
-        window.addEventListener('keydown', keyDownHandler)
-        return () => {
-            window.removeEventListener('keydown', keyDownHandler)
-        }
-    }, [0])
-
-    useEffect(() => {
-        console.count('QFigureLayer.useEffect[position, rotation]')
-
-        // const boundingBox = new THREE.Box3()
-        // const mesh = figureRef.current.children[0]
-        // boundingBox.copy(mesh.geometry.boundingBox)
-        // mesh.updateMatrixWorld(true)
-        // boundingBox.applyMatrix4(mesh.matrixWorld)
-    }, [position])
+        randomRangeInt(2, sz - 2) * sc,
+    ]
 
     return (
         <group
@@ -259,20 +232,45 @@ const QActiveLabel = () => {
     const figureLayer = createRef()
 
     let label = sh
+    let figureLayerPositionYStart = null
+    let figureLayerPositionYTarget = null
+    let figureLayerPositionYFrame = 0
 
     let ticker = setInterval(() => {
         if (label > 0) {
             label -= 1
+            figureLayerPositionYStart = null
+            figureLayerPositionYTarget = null
+            figureLayerPositionYFrame = 0
         } else {
             clearInterval(ticker)
             setSource(QFigureSource())
         }
     }, sp)
 
-    useFrame(() => {
+    const inFrame = () => {
         if (figureLayer && figureLayer.current) {
-            figureLayer.current.position.y = label * sc + sc / 2
+            if (!figureLayerPositionYStart && !figureLayerPositionYTarget) {
+                figureLayer.current.position.y = label * sc + sc / 2 + sc
+                figureLayerPositionYStart = figureLayer.current.position.y
+                figureLayerPositionYTarget = figureLayerPositionYStart - sc
+            } else {
+                if (
+                    figureLayer.current.position.y > figureLayerPositionYTarget
+                ) {
+                    figureLayer.current.position.y =
+                        figureLayerPositionYStart -
+                        easeInOutQuad(figureLayerPositionYFrame, 0, sc, sp / 20)
+                    figureLayerPositionYFrame++
+                } else {
+                    figureLayerPositionYStart = figureLayerPositionYTarget
+                }
+            }
         }
+    }
+
+    useFrame(() => {
+        inFrame()
     })
 
     return <QFigureLayer ref={figureLayer} source={source} />
@@ -284,18 +282,40 @@ const QActiveLabel = () => {
 export default function QBRICK() {
     console.count('QBRICK')
 
+    const keyDownHandler = (e) => {
+        console.log(e)
+    }
+
+    useEffect(() => {
+        console.count('QFigureLayer.useEffect[0]')
+
+        window.addEventListener('keydown', keyDownHandler)
+        return () => {
+            window.removeEventListener('keydown', keyDownHandler)
+        }
+    }, [0])
+
     return (
         <THREETRIS>
             <Canvas
                 orthographic
                 camera={{
                     zoom: 30,
-                    position: [600, 500, 600],
+                    position: [200, 100, 200],
                 }}
                 style={{ background: '#19140E' }}
                 colorManagement>
-                <ambientLight />
-                <pointLight position={[-200, 50, 200]} />
+                <ambientLight intensity="0.5" />
+                <pointLight
+                    color="#0BDCFF"
+                    position={[-500, 120, 200]}
+                    intensity="2.1"
+                />
+                <pointLight
+                    color="#ff69b4"
+                    position={[500, 60, -200]}
+                    intensity="1.6"
+                />
                 <QGround />
                 <QActiveLabel />
                 <OrbitControls />

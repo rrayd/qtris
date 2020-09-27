@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import styled from 'styled-components'
 
 import LogoImage from '../assets/svg/QBrickLogo.svg'
-import PlayingButton from './hud-components/PlayingButton'
+import PlayingButton from './components/PlayingButton'
 
 export const HUD: React.FC = () => {
     console.count('HUD')
